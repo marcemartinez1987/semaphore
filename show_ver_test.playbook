@@ -2,9 +2,8 @@
 - name: Ejecutar varios comandos en el grupo XR
   hosts: XR
   gather_facts: no
-
+  
   vars:
-    # Lista de comandos a ejecutar
     comandos:
       - show version brief
       - show ospf neighbor
@@ -15,33 +14,26 @@
       register: current_date
       delegate_to: localhost
 
-    - name: Ejecutar comandos y guardar salida
-      vars:
-        comando_limpio: "{{ comando | regex_replace('\\s+', '_') }}"
-      ansible.builtin.command:
-        argv:
-          - iosxr_command
-          - "--host"
-          - "{{ inventory_hostname }}"
-          - "--commands"
-          - "{{ comando }}"
-      register: version_output
-
+    - name: Ejecutar comandos en IOS XR
+      iosxr_command:
+        commands: "{{ comando }}"
+      register: command_output
       loop: "{{ comandos }}"
       loop_control:
         loop_var: comando
 
     - name: Guardar la salida en archivos
+      vars:
+        comando_limpio: "{{ comando | replace(' ', '_') }}"
       ansible.builtin.copy:
         content: |
           Dirección IP: {{ inventory_hostname }}
           Comando: {{ comando }}
           Fecha de ejecución: {{ current_date.stdout }}
-          
+
           Output del comando:
-          {{ version_output.stdout[0] }}
+          {{ command_output.stdout[0] }}
         dest: /home/mmartinez/Documentos/semaphore-outputs/{{ inventory_hostname }}_{{ comando_limpio }}_{{ current_date.stdout }}.txt
-      when: version_output.stdout is defined
       loop: "{{ comandos }}"
       loop_control:
         loop_var: comando
