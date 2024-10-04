@@ -33,7 +33,7 @@
 
           Output del comando:
           {% for item in command_output.results %}
-          {{ item.stdout }}
+          {{ item.stdout | join('\n') }}
           {% endfor %}
         dest: /home/mmartinez/Documentos/semaphore-outputs/{{ inventory_hostname }}_{{ comando_limpio }}_{{ current_date.stdout }}.txt
       loop: "{{ comandos }}"
