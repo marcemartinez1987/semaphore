@@ -1,15 +1,47 @@
 ---
-- name: Ejecutar show version brief en el grupo XR
+- name: Ejecutar varios comandos en el grupo XR
   hosts: XR
-  gather_facts: yes
-  
+  gather_facts: no
+
+  vars:
+    # Lista de comandos a ejecutar
+    comandos:
+      - show version brief
+      - show ospf neighbor brief
+
   tasks:
-    - name: Ejecutar comando show version brief
-      iosxr_command:
-        commands:
-          - show version brief
+    - name: Obtener la fecha actual
+      ansible.builtin.command: date '+%Y-%m-%d_%H-%M-%S'
+      register: current_date
+      delegate_to: localhost
+
+    - name: Ejecutar comandos y guardar salida
+      vars:
+        comando_limpio: "{{ comando | regex_replace('\\s+', '_') }}"
+      ansible.builtin.command:
+        argv:
+          - iosxr_command
+          - "--host"
+          - "{{ inventory_hostname }}"
+          - "--commands"
+          - "{{ comando }}"
       register: version_output
 
-    - name: Mostrar la salida
-      debug:
-        var: version_output.stdout_lines
+      loop: "{{ comandos }}"
+      loop_control:
+        loop_var: comando
+
+    - name: Guardar la salida en archivos
+      ansible.builtin.copy:
+        content: |
+          Dirección IP: {{ inventory_hostname }}
+          Comando: {{ comando }}
+          Fecha de ejecución: {{ current_date.stdout }}
+          
+          Output del comando:
+          {{ version_output.stdout[0] }}
+        dest: /home/mmartinez/Documentos/{{ inventory_hostname }}_{{ comando_limpio }}_{{ current_date.stdout }}.txt
+      when: version_output.stdout is defined
+      loop: "{{ comandos }}"
+      loop_control:
+        loop_var: comando
