@@ -32,7 +32,9 @@
           Fecha de ejecución: {{ current_date.stdout }}
 
           Output del comando:
-          {{ command_output.stdout[0] }}
+          {% for item in command_output.results %}
+          {{ item.stdout }}
+          {% endfor %}
         dest: /home/mmartinez/Documentos/semaphore-outputs/{{ inventory_hostname }}_{{ comando_limpio }}_{{ current_date.stdout }}.txt
       loop: "{{ comandos }}"
       loop_control:
