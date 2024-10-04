@@ -7,7 +7,7 @@
     # Lista de comandos a ejecutar
     comandos:
       - show version brief
-      - show ospf neighbor brief
+      - show ospf neighbor
 
   tasks:
     - name: Obtener la fecha actual
