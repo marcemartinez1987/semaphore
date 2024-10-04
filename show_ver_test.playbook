@@ -40,7 +40,7 @@
           
           Output del comando:
           {{ version_output.stdout[0] }}
-        dest: /home/mmartinez/Documentos/{{ inventory_hostname }}_{{ comando_limpio }}_{{ current_date.stdout }}.txt
+        dest: /home/mmartinez/Documentos/semaphore-outputs/{{ inventory_hostname }}_{{ comando_limpio }}_{{ current_date.stdout }}.txt
       when: version_output.stdout is defined
       loop: "{{ comandos }}"
       loop_control:
