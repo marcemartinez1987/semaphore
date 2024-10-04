@@ -1,0 +1,15 @@
+---
+- name: Ejecutar show version brief en el grupo XR
+  hosts: XR
+  gather_facts: yes
+  
+  tasks:
+    - name: Ejecutar comando show version brief
+      iosxr_command:
+        commands:
+          - show version brief
+      register: version_output
+
+    - name: Mostrar la salida
+      debug:
+        var: version_output.stdout_lines
